@@ -5,13 +5,13 @@ require_once('../entity/db.php');
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-$_SESSION['user_id'] = 43;    // Change this once we have a login system
-$_SESSION['username'] = "Faustine";           // Change this once we have a login system
+$_SESSION['user_id'] = 58;                     // Remove this once we have a login system
+$_SESSION['username'] = "Faustine";           // Remove this once we have a login system
 // Check if the form was submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
     $startDate = $_POST['start_date'];
     $endDate = $_POST['end_date'];
-    $sellerId = $_POST['seller_id'];
+    $userID = $_SESSION['user_id'];
 
     // Create an instance of the Db class
     $db = new Db();
@@ -21,59 +21,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
         die("Connection failed: " . $db->getConnectError());
     }
 
-    // Fetch orders for the seller within the date range
-    $sql = "SELECT OrderHistory.order_id, OrderHistory.order_date, Items.item_name, CartItems.quantity, Items.price
-            FROM OrderHistory
-            INNER JOIN ShoppingCarts ON OrderHistory.cart_id = ShoppingCarts.cart_id
-            INNER JOIN CartItems ON ShoppingCarts.cart_id = CartItems.cart_id
-            INNER JOIN Items ON CartItems.item_id = Items.item_id
-            WHERE Items.seller_id = ? AND OrderHistory.order_date BETWEEN ? AND ?";
-
-    // Execute the query using prepared statements
-    $params = [$sellerId, $startDate, $endDate];
-    $result = $db->query($sql, $params);
-
-    // Initialize variables for total revenue and sales
-    $totalRevenue = 0;
-    $totalSales = 0;
-
-    // Initialize an array to store order details
-    $orders = [];
-
-    // Loop through the query result
-    while ($row = $result->fetch_assoc()) {
-        $orderDate = $row['order_date'];
-        $itemName = $row['item_name'];
-        $quantity = $row['quantity'];
-        $price = $row['price'];
-        $revenue = $quantity * $price;
-
-        // Store order details in the array
-        $orders[] = [
-            'order_date' => $orderDate,
-            'item_name' => $itemName,
-            'quantity' => $quantity,
-            'price' => $price,
-            'revenue' => $revenue,
-        ];
-
-        // Update total revenue and sales
-        $totalRevenue += $revenue;
-        $totalSales += $quantity;
+    // Get the user ID from the session
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
     }
+    $userID = $_SESSION['user_id'];
 
+    // Fetch seller details based on the user ID
+    $sellerQuery = "SELECT seller_id FROM Sellers WHERE user_id = ?";
+    $sellerParams = [$userID];
+    $sellerResult = $db->query($sellerQuery, $sellerParams);
 
-    // Return the report data as an array
-    $reportData = [
-        'startDate' => $startDate,
-        'endDate' => $endDate,
-        'orders' => $orders,
-        'total_revenue' => $totalRevenue,
-        'total_sales' => $totalSales,
-    ];
+    if ($sellerResult) {
+        $sellerRow = $sellerResult->fetch_assoc();
+        $sellerID = $sellerRow['seller_id'];
 
-    // Load the content into another page for display (e.g., report_display.php)
-    include('report_display.php'); // Create report_display.php to display the content
+        // Fetch orders for the seller within the date range
+        $sql = "SELECT OrderHistory.order_id, OrderHistory.order_date, Items.item_name, CartItems.quantity, Items.price
+                FROM OrderHistory
+                INNER JOIN ShoppingCarts ON OrderHistory.cart_id = ShoppingCarts.cart_id
+                INNER JOIN CartItems ON ShoppingCarts.cart_id = CartItems.cart_id
+                INNER JOIN Items ON CartItems.item_id = Items.item_id
+                WHERE Items.seller_id = ? AND OrderHistory.order_date BETWEEN ? AND ?";
+        $params = [$sellerID, $startDate, $endDate];
+
+        // Execute the query using prepared statements
+        $result = $db->query($sql, $params);
+
+        // Initialize variables for total revenue and sales
+        $totalRevenue = 0;
+        $totalSales = 0;
+
+        // Initialize an array to store order details
+        $orders = [];
+
+        // Loop through the query result
+        while ($row = $result->fetch_assoc()) {
+            $orderDate = $row['order_date'];
+            $itemName = $row['item_name'];
+            $quantity = $row['quantity'];
+            $price = $row['price'];
+            $revenue = $quantity * $price;
+
+            // Store order details in the array
+            $orders[] = [
+                'order_date' => $orderDate,
+                'item_name' => $itemName,
+                'quantity' => $quantity,
+                'price' => $price,
+                'revenue' => $revenue,
+            ];
+
+            // Update total revenue and sales
+            $totalRevenue += $revenue;
+            $totalSales += $quantity;
+        }
+
+        // Return the report data as an array
+        $reportData = [
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'orders' => $orders,
+            'total_revenue' => $totalRevenue,
+            'total_sales' => $totalSales,
+        ];
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -134,24 +146,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
             <div class="collapse navbar-collapse">
                 <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
                     <li>
-                        <a class="nav-link" href="">Account Setting</a>
-                        <a class="nav-link" href="">Category Requests</a>
-                        <a class="nav-link" href="">Item Listings</a>
-                        <a class="nav-link" href="view_revenue_report.php">Revenue Report</a>
-                        <a class="nav-link" href="view_inventory.php">Manage Inventory</a>
+                    <a class="nav-link" href="sellerHomepage.php">Account Setting</a>
+                    <a class="nav-link" href="addItem.php">Category Requests</a>
+                    <a class="nav-link" href="sellerAccountSetting.php">Item Listings</a>
+                    <a class="nav-link" href="view_revenue_report.php">Revenue Report</a>
+                    <a class="nav-link" href="view_inventory.php">Manage Inventory</a>
                     </li>
                 </ul>
                 <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
                     <li><span class="nav-link">Welcome,
                             <?php echo htmlspecialchars($_SESSION["username"]); ?>
                         </span></li>
-                        <li><a class="nav-link" href="logout.php"><img src="images/user.svg"><span> log out</span></a></li>
+                        <li><a class="nav-link" href="logout.php"><img src="../images/user.svg"><span> log out</span></a></li>
                 </ul>
             </div>
         </div>
 
     </nav>
     <!-- End Header/Navigation -->
+<?php
+    // Load the content into another page for display (e.g., report_display.php)
+    include('report_display.php'); // Create report_display.php to display the content
+?>
     <div class="container a">
         <p><u><strong>ENTER DATE RANGE FOR REPORT</strong></u></p>
         <form method="post" class="mt-4">
@@ -165,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate'])) {
                     <input type="date" name="end_date" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <input type="hidden" name="seller_id" value="<?php echo htmlspecialchars($_SESSION['user_id'], ENT_QUOTES, 'UTF-8'); ?>">
+                    <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($_SESSION['user_id'], ENT_QUOTES, 'UTF-8'); ?>">
                 </div> 
                 <div class="form-group col-md-2" style="text-align: left;">
                     <button type="submit" name="generate" class="btn btn-primary btn-generate">Generate Report</button>

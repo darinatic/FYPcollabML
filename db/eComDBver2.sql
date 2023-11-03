@@ -23,8 +23,10 @@ CREATE TABLE `Sellers` (
   `seller_name` VARCHAR(255),
   `description` TEXT,
   `profile_image` VARCHAR(255),
-  `payment_QR` VARCHAR(255),
-  `pick_up_address` TEXT
+  `bank_name` VARCHAR(255),
+  `bank_account_no` VARCHAR(100),
+  `pick_up_address` TEXT,
+  `preferred_category` INT NOT NULL
 );
 
 CREATE TABLE `Customers` (
@@ -43,7 +45,7 @@ CREATE TABLE `Customers` (
 CREATE TABLE `Categories` (
   `category_id` INT PRIMARY KEY AUTO_INCREMENT,
   `category_name` VARCHAR(255) NOT NULL,
-  `status` VARCHAR(50) NOT NULL
+  `status` VARCHAR(50) NOT NULL DEFAULT "Active"
 );
 
 CREATE TABLE `Items` (
@@ -53,8 +55,14 @@ CREATE TABLE `Items` (
   `category_id` INT,
   `price` DECIMAL(10,2) NOT NULL,
   `description` TEXT,
-  `quantity` INT NOT NULL,
   `item_image_path` VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE `Inventory` (
+  `inventory_id` INT PRIMARY KEY AUTO_INCREMENT,
+  `item_id` INT,
+  `size` VARCHAR(50) NOT NULL,
+  `quantity` INT NOT NULL
 );
 
 CREATE TABLE `ItemRatings` (
@@ -84,7 +92,7 @@ CREATE TABLE `ShoppingCarts` (
   `cart_id` INT PRIMARY KEY AUTO_INCREMENT,
   `customer_id` INT,
   `total_price` DECIMAL(10, 2) NOT NULL,
-  `delivery_address` TEXT NOT NULL,
+  `delivery_address` TEXT,
   `status` VARCHAR(50) NOT NULL
 );
 
@@ -92,11 +100,12 @@ CREATE TABLE `CartItems` (
   `cart_item_id` INT PRIMARY KEY AUTO_INCREMENT,
   `cart_id` INT,
   `item_id` INT,
+  `size` VARCHAR(50) NOT NULL,
   `quantity` INT NOT NULL
 );
 
 CREATE TABLE `IndividualSellers` (
-  `seller_id` INT PRIMARY KEY AUTO_INCREMENT,
+  `seller_id` INT UNIQUE PRIMARY KEY AUTO_INCREMENT,
   `full_name` VARCHAR(255),
   `date_of_birth` DATE,
   `phone` VARCHAR(20),
@@ -105,28 +114,35 @@ CREATE TABLE `IndividualSellers` (
 );
 
 CREATE TABLE `BusinessSellers` (
-  `seller_id` INT PRIMARY KEY AUTO_INCREMENT,
+  `seller_id` INT UNIQUE PRIMARY KEY AUTO_INCREMENT,
   `business_name` VARCHAR(255),
   `uen` VARCHAR(20),
   `address` TEXT,
   `ACRA_filepath` VARCHAR(255)
 );
 
-CREATE TABLE CategoryRequests (
-  request_id INT PRIMARY KEY AUTO_INCREMENT,
-  seller_id INT,
-  category_name VARCHAR(255),,
-  description VARCHAR(255),
-  status VARCHAR(25) DEFAULT 'pending',
+
+CREATE TABLE `CategoryRequests` (
+  `request_id` INT PRIMARY KEY AUTO_INCREMENT,
+  `seller_id` INT,
+  `category_name` VARCHAR(255),
+  `description` VARCHAR(255),
+  `status` VARCHAR(25) DEFAULT "pending"
+
+
 );
 
 ALTER TABLE `Sellers` ADD FOREIGN KEY (`user_id`) REFERENCES `Users` (`user_id`);
+
+ALTER TABLE `Sellers` ADD FOREIGN KEY (`preferred_category`) REFERENCES `Categories` (`category_id`);
 
 ALTER TABLE `Customers` ADD FOREIGN KEY (`user_id`) REFERENCES `Users` (`user_id`);
 
 ALTER TABLE `Items` ADD FOREIGN KEY (`seller_id`) REFERENCES `Sellers` (`seller_id`);
 
 ALTER TABLE `Items` ADD FOREIGN KEY (`category_id`) REFERENCES `Categories` (`category_id`);
+
+ALTER TABLE `Inventory` ADD FOREIGN KEY (`item_id`) REFERENCES `Items` (`item_id`);
 
 ALTER TABLE `ItemRatings` ADD FOREIGN KEY (`customer_id`) REFERENCES `Customers` (`customer_id`);
 
@@ -150,19 +166,22 @@ ALTER TABLE `IndividualSellers` ADD FOREIGN KEY (`seller_id`) REFERENCES `Seller
 
 ALTER TABLE `BusinessSellers` ADD FOREIGN KEY (`seller_id`) REFERENCES `Sellers` (`seller_id`);
 
-ALTER TABLE CategoryRequests ADD FOREIGN KEY (seller_id) REFERENCES Sellers (seller_id`);
+
+ALTER TABLE `CategoryRequests` ADD FOREIGN KEY (`seller_id`) REFERENCES `Sellers` (`seller_id`);
+
+
 
 -- Inserting data into the Users table
 INSERT INTO Users (username, password, account_type, email, status)
 VALUES
     -- pass123
-  ('john_doe', '$2y$10$iExRjtQNHAJ2rG1bT4.PE.ZXIBGI/TQsg/AEDM8xn2SJhK5JQ93DG', 'Customer', 'kaibutsu740@gmail.com', 'Active'),
+  ('kaibutsu', '$2y$10$iExRjtQNHAJ2rG1bT4.PE.ZXIBGI/TQsg/AEDM8xn2SJhK5JQ93DG', 'Customer', 'kaibutsu740@gmail.com', 'Active'),
     -- passadmin123
   ('admin', '$2y$10$MxrJ1oXQvqyHI2/qHeZRIudv.w3Lr15Y0c3YKLTKg48LFazFR7UMy', 'System Admin', 'admin@example.com', 'Active');
 
 -- Inserting data into the Customers table
 INSERT INTO Customers (user_id, nickname, gender, date_of_birth, first_name, last_name, image_path, address, mobile)
 VALUES
-  (1, 'johndoe123', 'Male', '1990-05-15', 'John', 'Doe', 'john_doe.jpg', '789 Oak St, City', '+1234567890');
+  (1, 'johndoe123', 'Male', '1990-05-15', 'John', 'Doe', '/images/Prof_pic/john_doe.jpg', 'blk812 789 Oak St,#02-43,singapore 640812', '+1234567890');
 
 

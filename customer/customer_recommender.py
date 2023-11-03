@@ -1,4 +1,3 @@
-import sys
 import os
 os.environ['SURPRISE_DATA_FOLDER'] = '/home/site/wwwroot/surprise'
 from surprise import Dataset, Reader
@@ -7,8 +6,8 @@ from surprise import SVD
 import pymysql
 import json
 import pandas as pd
-
-
+import sys
+import os
 
 # Determine the current script directory
 script_dir = os.path.dirname(os.path.abspath(__file__))

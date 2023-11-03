@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="../css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/style.css">
     <style>
-        .container {
+        .a {
             padding: 20px;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -37,7 +37,7 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container a">
         <!-- <h1 class="mt-4">Seller Orders Report</h1> -->
         <?php
         
