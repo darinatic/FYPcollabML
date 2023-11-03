@@ -1,6 +1,4 @@
 <<<<<<< HEAD
-import os
-os.environ['SURPRISE_DATA_FOLDER'] = '/home/site/wwwroot/surprise'
 from surprise import Dataset, Reader
 from surprise.model_selection import train_test_split
 from surprise import SVD
@@ -103,8 +101,6 @@ try:
 finally:
     connection.close()
 =======
-import os
-os.environ['SURPRISE_DATA_FOLDER'] = '/home/site/wwwroot/surprise'
 from surprise import Dataset, Reader
 from surprise.model_selection import train_test_split
 from surprise import SVD
@@ -206,4 +202,4 @@ try:
 
 finally:
     connection.close()
->>>>>>> b293445d9cc8caf15a9e3382479b0b546a14cb80
+>>>>>>> 10794ee7dd8f3bca4ac14734a2587225ced33b55
