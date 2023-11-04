@@ -1,13 +1,5 @@
-<<<<<<< HEAD
 {
     "require": {
         "phpmailer/phpmailer": "^6.8"
     }
 }
-=======
-{
-    "require": {
-        "phpmailer/phpmailer": "^6.8"
-    }
-}
->>>>>>> b293445d9cc8caf15a9e3382479b0b546a14cb80

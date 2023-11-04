@@ -7,6 +7,7 @@ import pymysql
 import json
 import pandas as pd
 import sys
+import os
 
 # Determine the current script directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -100,5 +101,3 @@ try:
 
 finally:
     connection.close()
-
-
