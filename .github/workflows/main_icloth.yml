@@ -62,6 +62,5 @@ jobs:
         with:
           app-name: 'icloth'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E3944BCBCC1F4C4FB30636FB68D0C25E }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7E616CA2C3464968A2BFF782A4B1D9E8 }}
           package: .
-
