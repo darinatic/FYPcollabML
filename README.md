@@ -134,6 +134,6 @@ The system uses a MySQL database with the following main tables:
 
 ## Contribution
 Final Year Project - Collaborative Machine Learning E-commerce Platform
-Further information on blog: https://fyp23s302.wordpress.com/
+- Further information on blog: https://fyp23s302.wordpress.com/
 ---
 *This project demonstrates the integration of traditional e-commerce functionality with modern machine learning techniques to create a personalized shopping experience.*
